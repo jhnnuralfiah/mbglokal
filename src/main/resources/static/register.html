@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register MBG</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="left-side">
+
+        <img src="img/logo.png" class="big-logo">
+
+        <h1>BADAN GIZI NASIONAL</h1>
+
+        <p>Sistem Monitoring MBG</p>
+
+    </div>
+
+    <div class="login-container">
+
+        <img src="img/logo.png" class="logo">
+
+        <h2>REGISTER</h2>
+
+        <p class="subtitle">Buat akun sesuai role</p>
+
+        <!-- 🔥 STEP 1: PILIH ROLE -->
+        <select id="role" onchange="renderRegisterForm()">
+
+            <option value="">Pilih Role</option>
+            <option value="ADMIN">Admin</option>
+            <option value="PETANI">Petani</option>
+            <option value="SEKOLAH">Sekolah</option>
+
+        </select>
+
+        <!-- 🔥 STEP 2: FORM DINAMIS -->
+        <div id="dynamicForm"></div>
+
+        <button onclick="register()">
+            REGISTER
+        </button>
+
+        <p style="margin-top:10px;">
+            Sudah punya akun?
+            <a href="login.html">Login di sini</a>
+        </p>
+
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>

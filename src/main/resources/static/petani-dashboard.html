@@ -1,0 +1,205 @@
+                    <!DOCTYPE html>
+                    <html lang="id">
+
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Dashboard Petani</title>
+                        <link rel="stylesheet" href="/css/style.css">
+                        <style>
+                            .modal-overlay {
+                                display: none;
+                                position: fixed;
+                                top: 0; left: 0;
+                                width: 100%; height: 100%;
+                                background: rgba(0,0,0,0.5);
+                                z-index: 9999;
+                                justify-content: center;
+                                align-items: center;
+                            }
+                            .modal-overlay.active {
+                                display: flex;
+                            }
+                            .modal-box {
+                                background: white;
+                                padding: 30px;
+                                border-radius: 15px;
+                                width: 400px;
+                                box-shadow: 0 0 20px rgba(0,0,0,0.2);
+                            }
+                            .modal-box h3 {
+                                color: #001f5b;
+                                margin-bottom: 20px;
+                            }
+                            .modal-box input {
+                                width: 100%;
+                                padding: 12px;
+                                margin-top: 10px;
+                                border: 1px solid #ccc;
+                                border-radius: 8px;
+                                font-size: 14px;
+                            }
+                            .modal-actions {
+                                display: flex;
+                                gap: 10px;
+                                margin-top: 15px;
+                            }
+                            .modal-actions button {
+                                flex: 1;
+                            }
+                            .btn-cancel {
+                                background: #ccc !important;
+                                color: #333 !important;
+                            }
+                            .btn-cancel:hover {
+                                background: #bbb !important;
+                            }
+                            .sidebar ul li.active {
+                                background: #3498db;
+                            }
+                            .status-menunggu {
+                                background: orange;
+                                color: white;
+                                padding: 4px 12px;
+                                border-radius: 20px;
+                                font-size: 13px;
+                            }
+                            .status-disetujui {
+                                background: green;
+                                color: white;
+                                padding: 4px 12px;
+                                border-radius: 20px;
+                                font-size: 13px;
+                            }
+                            .status-ditolak {
+                                background: #e74c3c;
+                                color: white;
+                                padding: 4px 12px;
+                                border-radius: 20px;
+                                font-size: 13px;
+                            }
+                        </style>
+                    </head>
+
+                    <body>
+
+                        <!-- ================= SIDEBAR ================= -->
+                        <div class="sidebar">
+                            <img src="/img/logo.png" class="sidebar-logo">
+                            <h2>PETANI MBG</h2>
+                            <ul>
+                                <li onclick="showPage('dashboard', this)">🏠 Dashboard</li>
+                                <li onclick="showPage('stok', this)">🌾 Stok Saya</li>
+                                <li onclick="showPage('permintaan', this)">📦 Permintaan Admin</li>
+                            </ul>
+                            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+                        </div>
+
+                        <!-- ================= CONTENT ================= -->
+                        <div class="content">
+
+                            <!-- ================= DASHBOARD ================= -->
+                            <div id="dashboard" class="page">
+                                <div class="topbar">
+                                    <h1>Dashboard Petani</h1>
+                                    <small id="welcomePetani"></small>
+                                </div>
+
+                                <div class="card-container">
+                                    <div class="card">
+                                        <h3>Total Komoditas</h3>
+                                        <p id="totalKomoditas">0</p>
+                                        <small>Jenis bahan yang dimiliki</small>
+                                    </div>
+                                    <div class="card">
+                                        <h3>Stok Menipis</h3>
+                                        <p id="stokMenipis">0</p>
+                                        <small>Stok dibawah 10 kg</small>
+                                    </div>
+                                    <div class="card">
+                                        <h3>Permintaan Aktif</h3>
+                                        <p id="totalPermintaan">0</p>
+                                        <small>Menunggu konfirmasi</small>
+                                    </div>
+                                </div>
+
+                                <div class="card" style="margin-top:20px;">
+                                    <h3>Info Stok Terendah</h3>
+                                    <p id="stokTerendah" style="font-size:18px; color:#3498db;">-</p>
+                                </div>
+                            </div>
+
+                            <!-- ================= STOK PETANI ================= -->
+                            <div id="stok" class="page hidden">
+                                <div class="topbar">
+                                    <h1>Stok Saya</h1>
+                                </div>
+
+                                <div class="form-box">
+                                    <input type="text" id="namaKomoditas" placeholder="Nama Komoditas">
+                                    <input type="number" id="stokKomoditas" placeholder="Jumlah Stok">
+                                    <input type="text" id="satuanKomoditas" placeholder="Satuan (kg, liter, dll)">
+                                    <button class="add-btn" onclick="tambahKomoditas()">➕ Tambah Stok</button>
+                                </div>
+
+                                <div class="table-wrapper">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Komoditas</th>
+                                                <th>Stok</th>
+                                                <th>Satuan</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="komoditasBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- ================= PERMINTAAN ADMIN ================= -->
+                            <div id="permintaan" class="page hidden">
+                                <div class="topbar">
+                                    <h1>Permintaan Admin</h1>
+                                </div>
+
+                                <div class="table-wrapper">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Komoditas</th>
+                                                <th>Jumlah</th>
+                                                <th>Tanggal</th>
+                                                <th>Status</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="permintaanBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ================= MODAL EDIT STOK ================= -->
+                        <div class="modal-overlay" id="modalEditStok">
+                            <div class="modal-box">
+                                <h3>✏️ Edit Stok Komoditas</h3>
+                                <input type="hidden" id="editStokId">
+                                <input type="text" id="editNamaStok" placeholder="Nama Komoditas">
+                                <input type="number" id="editJumlahStok" placeholder="Jumlah Stok">
+                                <input type="text" id="editSatuanStok" placeholder="Satuan">
+                                <div class="modal-actions">
+                                    <button class="btn-cancel" onclick="closeModal('modalEditStok')">Batal</button>
+                                    <button onclick="simpanEditStok()">💾 Simpan</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="toast"></div>
+                        <script src="/js/script.js"></script>
+                    </body>
+
+                    </html>

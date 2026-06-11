@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Sekolah</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+    <div class="sidebar">
+        <img src="/img/logo.png" class="sidebar-logo">
+        <h2>SEKOLAH MBG</h2>
+        <ul>
+            <li onclick="showPage('dashboard', this)">🏠 Dashboard</li>
+            <li onclick="showPage('distribusi', this)">🚚 Status Distribusi</li>
+            <li onclick="showPage('komentar', this)">💬 Komentar</li>
+        </ul>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+
+    <!-- ================= CONTENT ================= -->
+    <div class="content">
+
+        <!-- ================= DASHBOARD ================= -->
+        <div id="dashboard" class="page">
+            <div class="topbar">
+                <h1>Dashboard Sekolah</h1>
+                <small id="welcomeSekolah"></small>
+            </div>
+
+            <div class="card-container">
+                <div class="card">
+                    <h3>Total Distribusi</h3>
+                    <p id="totalDistribusi">0</p>
+                    <small>Total distribusi diterima</small>
+                </div>
+                <div class="card">
+                    <h3>Dalam Proses</h3>
+                    <p id="prosesDistribusi">0</p>
+                    <small>Sedang dikirim</small>
+                </div>
+                <div class="card">
+                    <h3>Selesai Diterima</h3>
+                    <p id="selesaiDistribusi">0</p>
+                    <small>Sudah diterima</small>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:20px;">
+                <h3>Status Distribusi Terbaru</h3>
+                <p id="statusTerbaru" style="font-size:18px; color:#3498db;">-</p>
+            </div>
+        </div>
+
+        <!-- ================= DISTRIBUSI ================= -->
+        <div id="distribusi" class="page hidden">
+            <div class="topbar">
+                <h1>Status Distribusi</h1>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Paket Menu</th>
+                            <th>Tanggal</th>
+                            <th>Porsi</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="distribusiBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= KOMENTAR ================= -->
+        <div id="komentar" class="page hidden">
+            <div class="topbar">
+                <h1>Komentar</h1>
+            </div>
+
+            <div class="form-box">
+                <input type="text" id="namaSekolah" placeholder="Nama Sekolah">
+                <input type="text" id="isiKomentar" placeholder="Tulis komentar">
+                <button class="add-btn" onclick="tambahKomentar()">📤 Kirim</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Sekolah</th>
+                            <th>Komentar</th>
+                            <th>Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="komentarBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="toast"></div>
+    <script src="/js/script.js"></script>
+
+</body>
+
+</html>

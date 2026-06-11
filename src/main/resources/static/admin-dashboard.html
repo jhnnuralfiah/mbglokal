@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        .modal-box h3 {
+            color: #001f5b;
+            margin-bottom: 20px;
+        }
+        .modal-box input,
+        .modal-box select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .modal-actions button {
+            flex: 1;
+        }
+        .btn-cancel {
+            background: #ccc !important;
+            color: #333 !important;
+        }
+        .btn-cancel:hover {
+            background: #bbb !important;
+        }
+        .sidebar ul li.active {
+            background: #3498db;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+    <div class="sidebar">
+        <img src="img/logo.png" class="sidebar-logo">
+        <h2>ADMIN MBG</h2>
+        <ul>
+            <li onclick="showPage('dashboard', this)">🏠 Dashboard</li>
+            <li onclick="showPage('komoditas', this)">🌾 Komoditas</li>
+            <li onclick="showPage('paket', this)">🍱 Paket Menu</li>
+            <li onclick="showPage('detailmenu', this)">📋 Detail Menu</li>
+            <li onclick="showPage('distribusi', this)">🚚 Distribusi</li>
+            <li onclick="showPage('permintaan', this)">📦 Permintaan ke Petani</li>
+            <li onclick="showPage('komentar', this)">💬 Komentar</li>
+            <li onclick="showPage('user', this)">👥 User Management</li>
+        </ul>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+
+    <!-- ================= CONTENT ================= -->
+    <div class="content">
+
+        <!-- ================= DASHBOARD ================= -->
+        <div id="dashboard" class="page">
+            <div class="topbar">
+                <h1>Dashboard Admin</h1>
+                <small id="welcomeAdmin"></small>
+            </div>
+
+            <div class="card-container">
+                <div class="card">
+                    <h3>Komoditas Tersedia</h3>
+                    <p id="totalKomoditas">0</p>
+                    <small>Data bahan baku aktif</small>
+                </div>
+                <div class="card">
+                    <h3>Paket Menu Aktif</h3>
+                    <p id="totalPaket">0</p>
+                    <small>Menu yang tersedia</small>
+                </div>
+                <div class="card">
+                    <h3>Distribusi Berjalan</h3>
+                    <p id="totalDistribusi">0</p>
+                    <small>Status pengiriman sistem</small>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <br>
+                <h2>Distribusi Terbaru</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Menu</th>
+                            <th>Penerima</th>
+                            <th>Porsi</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardDistribusiPreview"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= KOMODITAS ================= -->
+        <div id="komoditas" class="page hidden">
+            <div class="topbar">
+                <h1>Komoditas</h1>
+            </div>
+
+            <div class="form-box">
+                <input type="text" id="namaKomoditas" placeholder="Nama Komoditas">
+                <input type="number" id="stokKomoditas" placeholder="Jumlah Stok">
+                <input type="text" id="satuanKomoditas" placeholder="Satuan (kg, liter, dll)">
+                <button class="add-btn" onclick="tambahKomoditas()">➕ Tambah</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Komoditas</th>
+                            <th>Stok</th>
+                            <th>Satuan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="komoditasBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= PAKET MENU ================= -->
+        <div id="paket" class="page hidden">
+            <div class="topbar">
+                <h1>Paket Menu</h1>
+            </div>
+
+            <div class="form-box">
+                <input type="text" id="namaPaket" placeholder="Nama Paket">
+                <input type="text" id="isiPaket" placeholder="Deskripsi Gizi">
+                <button class="add-btn" onclick="tambahPaket()">➕ Tambah</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Paket</th>
+                            <th>Deskripsi Gizi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paketBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= DETAIL MENU ================= -->
+        <div id="detailmenu" class="page hidden">
+            <div class="topbar">
+                <h1>Detail Menu</h1>
+            </div>
+
+            <div class="form-box">
+                <select id="idPaketDetail">
+                    <option value="">Pilih Paket Menu</option>
+                </select>
+                <select id="idKomoditasDetail">
+                    <option value="">Pilih Komoditas</option>
+                </select>
+                <input type="number" id="jumlahKebutuhan" placeholder="Kebutuhan per Porsi" step="0.01">
+                <button class="add-btn" onclick="tambahDetailMenu()">➕ Tambah</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Paket Menu</th>
+                            <th>Komoditas</th>
+                            <th>Kebutuhan / Porsi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailMenuBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= DISTRIBUSI ================= -->
+        <div id="distribusi" class="page hidden">
+            <div class="topbar">
+                <h1>Distribusi</h1>
+            </div>
+
+            <div class="form-box">
+                <select id="idMenuDistribusi">
+                    <option value="">Pilih Paket Menu</option>
+                </select>
+                <select id="idPenerimaDistribusi">
+                    <option value="">Pilih Penerima</option>
+                </select>
+                <input type="date" id="tanggalDistribusi">
+                <input type="number" id="jumlahPorsi" placeholder="Jumlah Porsi">
+                <select id="statusDistribusi">
+                    <option value="">Pilih Status</option>
+                    <option value="Proses">Proses</option>
+                    <option value="Dikirim">Dikirim</option>
+                    <option value="Selesai">Selesai</option>
+                </select>
+                <button class="add-btn" onclick="tambahDistribusi()">➕ Tambah</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Menu</th>
+                            <th>Penerima</th>
+                            <th>Tanggal</th>
+                            <th>Porsi</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="distribusiBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= PERMINTAAN KE PETANI ================= -->
+        <div id="permintaan" class="page hidden">
+            <div class="topbar">
+                <h1>Permintaan ke Petani</h1>
+            </div>
+
+            <div class="form-box">
+                <select id="idKomoditasPermintaan">
+                    <option value="">Pilih Komoditas</option>
+                </select>
+                <input type="number" id="jumlahPermintaan" placeholder="Jumlah yang diminta">
+                <button class="add-btn" onclick="tambahPermintaan()">➕ Kirim Permintaan</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Komoditas</th>
+                            <th>Jumlah</th>
+                            <th>Tanggal</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="permintaanBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= KOMENTAR ================= -->
+        <div id="komentar" class="page hidden">
+            <div class="topbar">
+                <h1>Komentar dari Sekolah</h1>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Sekolah</th>
+                            <th>Komentar</th>
+                            <th>Tanggal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="komentarBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= USER MANAGEMENT ================= -->
+    <div id="user" class="page hidden">
+        <div class="topbar">
+            <h1>User Management</h1>
+        </div>
+
+        <div class="form-box">
+            <input type="text" id="newUsername" placeholder="Username">
+            <input type="password" id="newPassword" placeholder="Password">
+            <select id="newRole">
+                <option value="">Pilih Role</option>
+                <option value="ADMIN">Admin</option>
+                <option value="PETANI">Petani</option>
+                <option value="SEKOLAH">Sekolah</option>
+            </select>
+            <input type="text" id="newNamaInstansi" placeholder="Nama Sekolah (jika SEKOLAH)">
+            <input type="text" id="newNamaPetani" placeholder="Nama Petani (jika PETANI)">
+            <button class="add-btn" onclick="tambahUser()">➕ Tambah User</button>
+        </div>
+
+        <div class="form-box">
+            <select id="filterRole" onchange="loadUser()">
+                <option value="">Semua Role</option>
+                <option value="ADMIN">Admin</option>
+                <option value="PETANI">Petani</option>
+                <option value="SEKOLAH">Sekolah</option>
+            </select>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Nama</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="userBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= MODAL EDIT KOMODITAS ================= -->
+    <div class="modal-overlay" id="modalEditKomoditas">
+        <div class="modal-box">
+            <h3>✏️ Edit Komoditas</h3>
+            <input type="hidden" id="editKomoditasId">
+            <input type="text" id="editNamaKomoditas" placeholder="Nama Komoditas">
+            <input type="number" id="editStokKomoditas" placeholder="Stok">
+            <input type="text" id="editSatuanKomoditas" placeholder="Satuan">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('modalEditKomoditas')">Batal</button>
+                <button onclick="simpanEditKomoditas()">💾 Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL EDIT PAKET ================= -->
+    <div class="modal-overlay" id="modalEditPaket">
+        <div class="modal-box">
+            <h3>✏️ Edit Paket Menu</h3>
+            <input type="hidden" id="editPaketId">
+            <input type="text" id="editNamaPaket" placeholder="Nama Paket">
+            <input type="text" id="editDeskripsiPaket" placeholder="Deskripsi Gizi">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('modalEditPaket')">Batal</button>
+                <button onclick="simpanEditPaket()">💾 Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL EDIT USER ================= -->
+    <div class="modal-overlay" id="modalEditUser">
+        <div class="modal-box">
+            <h3>✏️ Edit User</h3>
+            <input type="hidden" id="editUserId">
+            <input type="text" id="editUsername" placeholder="Username">
+            <select id="editRole">
+                <option value="ADMIN">Admin</option>
+                <option value="PETANI">Petani</option>
+                <option value="SEKOLAH">Sekolah</option>
+            </select>
+            <input type="text" id="editNamaInstansi" placeholder="Nama Instansi/Sekolah">
+            <input type="text" id="editNamaPetani" placeholder="Nama Petani">
+            <input type="password" id="editPassword" placeholder="Password baru (kosongkan jika tidak diubah)">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('modalEditUser')">Batal</button>
+                <button onclick="simpanEditUser()">💾 Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL EDIT DISTRIBUSI ================= -->
+    <div class="modal-overlay" id="modalEditDistribusi">
+        <div class="modal-box">
+            <h3>✏️ Edit Status Distribusi</h3>
+            <input type="hidden" id="editDistribusiId">
+            <select id="editStatusDistribusi">
+                <option value="Proses">Proses</option>
+                <option value="Dikirim">Dikirim</option>
+                <option value="Selesai">Selesai</option>
+            </select>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('modalEditDistribusi')">Batal</button>
+                <button onclick="simpanEditDistribusi()">💾 Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+    <script src="js/script.js"></script>
+</body>
+
+</html>

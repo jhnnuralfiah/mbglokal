@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login MBG</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="left-side">
+
+        <img src="img/logo.png" class="big-logo">
+
+        <h1>
+            BADAN GIZI
+            NASIONAL
+        </h1>
+
+        <p>
+            Sistem Monitoring MBG
+        </p>
+
+    </div>
+
+    <div class="login-container">
+
+        <img src="img/logo.png" class="logo">
+
+        <h2>LOGIN</h2>
+
+        <p class="subtitle">
+            Login sesuai role
+        </p>
+
+        <input type="text" id="username" placeholder="Username">
+
+        <input type="password" id="password" placeholder="Password">
+
+        <button onclick="login()">
+            LOGIN
+        </button>
+
+        <p id="error"></p>
+
+        <p style="margin-top:10px;">
+            Belum punya akun?
+            <a href="register.html">Daftar di sini</a>
+        </p>
+
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>

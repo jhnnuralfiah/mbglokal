@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Data Distribusi</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <img src="/img/logo.png" class="sidebar-logo">
+        <h2>MBG</h2>
+        <ul>
+            <li onclick="window.location='/index.html'">🏠 Dashboard</li>
+            <li onclick="window.location='/data.html'">📊 Data</li>
+            <li onclick="window.location='/profile.html'">👤 Profile</li>
+        </ul>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+
+    <div class="content">
+        <div class="topbar">
+            <h1>Input Distribusi</h1>
+        </div>
+
+        <div class="form-box">
+            <input type="text" id="menu" placeholder="Nama Menu">
+            <input type="text" id="bahan" placeholder="Bahan">
+            <input type="text" id="penerima" placeholder="Penerima">
+            <input type="number" id="porsi" placeholder="Jumlah Porsi">
+            <select id="status">
+                <option value="Terkirim">Terkirim</option>
+                <option value="Proses">Proses</option>
+            </select>
+            <button class="add-btn" onclick="tambahData()">Tambah</button>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Menu</th>
+                        <th>Bahan</th>
+                        <th>Penerima</th>
+                        <th>Porsi</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="data-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>
