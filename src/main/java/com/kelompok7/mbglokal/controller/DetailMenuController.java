@@ -39,6 +39,14 @@ public class DetailMenuController {
         return service.create(detailMenu);
     }
 
+    @PutMapping("/{id}")
+    public DetailMenu update(
+            @PathVariable Long id,
+            @RequestBody DetailMenu detailMenu
+    ) {
+        return service.update(id, detailMenu);
+    }
+
     @DeleteMapping("/{id}")
     public void delete(
             @PathVariable Long id

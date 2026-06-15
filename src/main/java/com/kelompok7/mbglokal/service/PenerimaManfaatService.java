@@ -32,4 +32,37 @@ public class PenerimaManfaatService {
     public void deletePenerimaManfaat(Long id) {
         penerimaManfaatRepository.deleteById(id);
     }
+    public PenerimaManfaat updatePenerimaManfaat(
+        Long id,
+        PenerimaManfaat data
+) {
+
+    PenerimaManfaat existing =
+            penerimaManfaatRepository
+            .findById(id)
+            .orElseThrow();
+
+    existing.setUsername(
+            data.getUsername()
+    );
+
+    existing.setPassword(
+            data.getPassword()
+    );
+
+    existing.setRole(
+            data.getRole()
+    );
+
+    existing.setNamaInstansi(
+            data.getNamaInstansi()
+    );
+
+    existing.setNamaPetani(
+            data.getNamaPetani()
+    );
+
+    return penerimaManfaatRepository
+            .save(existing);
+}
 }

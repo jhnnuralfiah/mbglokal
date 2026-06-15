@@ -40,4 +40,20 @@ public class DetailMenuService {
                         idMenu
                 );
     }
+
+    public DetailMenu update(Long id, DetailMenu detailMenu) {
+
+        DetailMenu existing = repository.findById(id)
+                .orElseThrow();
+
+        existing.setPaketMenu(detailMenu.getPaketMenu());
+
+        existing.setKomoditas(detailMenu.getKomoditas());
+
+        existing.setJumlahKebutuhanPerPorsi(
+                detailMenu.getJumlahKebutuhanPerPorsi()
+        );
+
+        return repository.save(existing);
+    }
 }
