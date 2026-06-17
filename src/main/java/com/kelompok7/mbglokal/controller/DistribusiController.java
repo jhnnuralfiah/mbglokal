@@ -1,18 +1,28 @@
 package com.kelompok7.mbglokal.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.kelompok7.mbglokal.entity.Distribusi;
 import com.kelompok7.mbglokal.service.DistribusiService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/distribusi")
+@RequiredArgsConstructor
 public class DistribusiController {
 
-    @Autowired
-    private DistribusiService service;
+    private final DistribusiService service;
 
     @GetMapping
     public List<Distribusi> getAll() {
@@ -25,28 +35,15 @@ public class DistribusiController {
     }
 
     @PostMapping
-    public Object create(@RequestBody Distribusi distribusi) {
-        try {
-            return service.create(distribusi);
-        } catch (RuntimeException e) {
-            return java.util.Map.of(
-                    "success", false,
-                    "message", e.getMessage());
-        }
+    public Distribusi create(@RequestBody Distribusi distribusi) {
+        return service.create(distribusi);
     }
 
-    // ✅ TAMBAH ENDPOINT PUT FULL UPDATE
     @PutMapping("/{id}")
-    public Object updateDistribusi(
+    public Distribusi updateDistribusi(
             @PathVariable Long id,
             @RequestBody Distribusi distribusi) {
-        try {
-            return service.update(id, distribusi);
-        } catch (RuntimeException e) {
-            return java.util.Map.of(
-                    "success", false,
-                    "message", e.getMessage());
-        }
+        return service.update(id, distribusi);
     }
 
     @PutMapping("/{id}/status")

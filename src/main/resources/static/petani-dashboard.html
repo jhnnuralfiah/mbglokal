@@ -88,11 +88,11 @@
                             <img src="/img/logo.png" class="sidebar-logo">
                             <h2>PETANI MBG</h2>
                             <ul>
-                                <li onclick="showPage('dashboard', this)">🏠 Dashboard</li>
-                                <li onclick="showPage('stok', this)">🌾 Stok Saya</li>
-                                <li onclick="showPage('permintaan', this)">📦 Permintaan Admin</li>
+                                <li onclick="showPage('dashboard', this)">Dashboard</li>
+                                <li onclick="showPage('stok', this)">Stok Saya</li>
+                                <li onclick="showPage('permintaan', this)">Permintaan Admin</li>
                             </ul>
-                            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+                            <button class="logout-btn" onclick="logout()">Logout</button>
                         </div>
 
                         <!-- ================= CONTENT ================= -->
@@ -139,7 +139,7 @@
                                     <input type="text" id="namaKomoditas" placeholder="Nama Komoditas">
                                     <input type="number" id="stokKomoditas" placeholder="Jumlah Stok">
                                     <input type="text" id="satuanKomoditas" placeholder="Satuan (kg, liter, dll)">
-                                    <button class="add-btn" onclick="tambahKomoditas()">➕ Tambah Stok</button>
+                                    <button class="add-btn" onclick="tambahKomoditas()">Tambah Stok</button>
                                 </div>
 
                                 <div class="table-wrapper">
@@ -186,14 +186,14 @@
                         <!-- ================= MODAL EDIT STOK ================= -->
                         <div class="modal-overlay" id="modalEditStok">
                             <div class="modal-box">
-                                <h3>✏️ Edit Stok Komoditas</h3>
+                                <h3>Edit Stok Komoditas</h3>
                                 <input type="hidden" id="editStokId">
                                 <input type="text" id="editNamaStok" placeholder="Nama Komoditas">
                                 <input type="number" id="editJumlahStok" placeholder="Jumlah Stok">
                                 <input type="text" id="editSatuanStok" placeholder="Satuan">
                                 <div class="modal-actions">
                                     <button class="btn-cancel" onclick="closeModal('modalEditStok')">Batal</button>
-                                    <button onclick="simpanEditStok()">💾 Simpan</button>
+                                    <button onclick="simpanEditStok()">Simpan</button>
                                 </div>
                             </div>
                         </div>

@@ -552,11 +552,8 @@ async function openEditDetailMenu(id, idMenu, idKomoditas, jumlah) {
 
 async function simpanEditDetailMenu() {
   const id = document.getElementById("editDetailId").value;
-
   const idMenu = document.getElementById("editPaketDetail").value;
-
   const idKomoditas = document.getElementById("editKomoditasDetail").value;
-
   const jumlah = document.getElementById("editJumlahDetail").value;
 
   try {
@@ -579,13 +576,35 @@ async function simpanEditDetailMenu() {
     if (!res.ok) throw new Error();
 
     showToast("Detail menu berhasil diupdate", "success");
-
     closeModal("modalEditDetailMenu");
-
     loadDetailMenu();
   } catch {
     showToast("Gagal update detail menu", "error");
   }
+}
+
+async function hapusDetailMenu(id) {
+  if (!confirm("Yakin ingin menghapus detail menu ini?")) return;
+
+  try {
+    await fetch(`${BASE_URL}/detail-menu/${id}`, { method: "DELETE" });
+    showToast("Detail menu berhasil dihapus", "success");
+    loadDetailMenu();
+  } catch {
+    showToast("Gagal menghapus detail menu", "error");
+  }
+}
+// ==========================
+function getBadgeStatus(status) {
+  if (!status) return "-";
+  const s = status.toLowerCase();
+  if (s === "proses") return `<span class="badge badge-proses">⏳ Proses</span>`;
+  if (s === "dikirim") return `<span class="badge badge-dikirim">🚚 Dikirim</span>`;
+  if (s === "selesai") return `<span class="badge badge-selesai">✅ Selesai</span>`;
+  if (s === "menunggu") return `<span class="badge badge-menunggu">⏳ Menunggu</span>`;
+  if (s === "disetujui") return `<span class="badge badge-disetujui">✅ Disetujui</span>`;
+  if (s === "ditolak") return `<span class="badge badge-ditolak">❌ Ditolak</span>`;
+  return `<span class="badge">${status}</span>`;
 }
 
 // ==========================
@@ -594,118 +613,139 @@ async function simpanEditDetailMenu() {
 
 async function loadDistribusi() {
   const body = document.getElementById("distribusiBody");
-
   if (!body) return;
+
+  const role = localStorage.getItem("role");
+  const idUser = localStorage.getItem("idUser");
 
   try {
     const response = await fetch(`${BASE_URL}/distribusi`);
-
     const data = await response.json();
 
-    console.log(data);
+    // Ambil dropdown penerima untuk mapping idUser -> namaInstansi
+    const penerimaRes = await fetch(`${BASE_URL}/penerima-manfaat/dropdown`);
+    const penerimaData = await penerimaRes.json();
+    const penerimaMap = {};
+    penerimaData.forEach(p => { penerimaMap[p.idUser] = p.namaInstansi; });
 
     body.innerHTML = "";
 
-    data.forEach((item, i) => {
+    // Filter berdasarkan role
+    const filtered = role === "SEKOLAH"
+      ? data.filter(item => item.penerimaManfaat?.idUser == idUser)
+      : data;
+
+    filtered.forEach((item, i) => {
+      const namaPenerima = item.penerimaManfaat
+        ? (penerimaMap[item.penerimaManfaat.idUser] || "-")
+        : "-";
+
+      // Tombol aksi berbeda per role
+      let aksi = "";
+      if (role === "ADMIN") {
+        aksi = `<button class="delete-btn" onclick="hapusDistribusi(${item.idDistribusi})">🗑️ Hapus</button>`;
+      } else if (role === "SEKOLAH") {
+        if (item.status === "Proses" || item.status === "Dikirim") {
+          aksi = `<button class="edit-btn" style="background:green; width:auto; padding:6px 12px;" onclick="konfirmasiTerima(${item.idDistribusi})">✅ Konfirmasi Diterima</button>`;
+        } else {
+          aksi = `<span style="color:green;">✔ Sudah Diterima</span>`;
+        }
+      }
+
       body.innerHTML += `
         <tr>
           <td>${i + 1}</td>
           <td>${item.paketMenu?.namaMenu || "-"}</td>
-          <td>${item.penerimaManfaat?.namaInstansi || "-"}</td>
+          <td>${namaPenerima}</td>
           <td>${item.tanggalKirim}</td>
           <td>${item.jumlahPorsiDikirim}</td>
-          <td>${item.status}</td>
-
-          <td>
-            <button class="delete-btn"
-              onclick="hapusDistribusi(${item.idDistribusi})">
-              🗑️ Hapus
-            </button>
-          </td>
-
+          <td>${getBadgeStatus(item.status)}</td>
+          <td>${aksi}</td>
         </tr>
       `;
     });
   } catch (error) {
     console.log(error);
-
     showToast("Gagal load distribusi", "error");
   }
+}
 
-  async function tambahDistribusi() {
+async function konfirmasiTerima(id) {
+  try {
+    const res = await fetch(`${BASE_URL}/distribusi/${id}/status?status=Selesai`, {
+      method: "PUT"
+    });
 
-        const idMenu =
-            document.getElementById("idMenuDistribusi").value;
+    if (!res.ok) throw new Error();
 
-        const idPenerima =
-            document.getElementById("idPenerimaDistribusi").value;
+    showToast("Distribusi dikonfirmasi diterima!", "success");
+    loadDistribusi();
+    loadDashboardSekolah();
+  } catch {
+    showToast("Gagal konfirmasi", "error");
+  }
+}
 
-        const tanggal =
-            document.getElementById("tanggalDistribusi").value;
+async function tambahDistribusi() {
+  const idMenu = document.getElementById("idMenuDistribusi").value;
+  const idPenerima = document.getElementById("idPenerimaDistribusi").value;
+  const tanggal = document.getElementById("tanggalDistribusi").value;
+  const jumlah = document.getElementById("jumlahPorsi").value;
+  const status = document.getElementById("statusDistribusi").value;
 
-        const jumlah =
-            document.getElementById("jumlahDistribusi").value;
+  if (!idMenu || !idPenerima || !tanggal || !jumlah || !status) {
+    showToast("Data distribusi belum lengkap", "error");
+    return;
+  }
 
-        const status =
-            document.getElementById("statusDistribusi").value;
+  try {
+    const res = await fetch(`${BASE_URL}/distribusi`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        paketMenu: { idMenu: parseInt(idMenu) },
+        penerimaManfaat: { idUser: parseInt(idPenerima) },
+        tanggalKirim: tanggal,
+        jumlahPorsiDikirim: parseInt(jumlah),
+        status: status,
+      }),
+    });
 
-        if (!idMenu || !idPenerima || !tanggal || !jumlah || !status) {
+    const result = await res.json();
 
-            showToast("Data distribusi belum lengkap", "error");
-
-            return;
-        }
-
-        try {
-
-            const res =
-                await fetch(`${BASE_URL}/distribusi`, {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        paketMenu: {
-                            idMenu: parseInt(idMenu)
-                        },
-
-                        penerimaManfaat: {
-                            idUser: parseInt(idPenerima)
-                        },
-
-                        tanggalKirim: tanggal,
-
-                        jumlahPorsiDikirim: parseInt(jumlah),
-
-                        status: status
-                    })
-                });
-
-            if (!res.ok) {
-                throw new Error();
-            }
-
-            showToast(
-                "Distribusi berhasil ditambahkan",
-                "success"
-            );
-
-            loadDistribusi();
-
-        } catch(error) {
-
-            console.log(error);
-
-            showToast(
-                "Gagal tambah distribusi",
-                "error"
-            );
-        }
+    if (!res.ok) {
+      showToast(result.message || "Gagal tambah distribusi", "error");
+      return;
     }
+
+    showToast("Distribusi berhasil ditambahkan", "success");
+    loadDistribusi();
+    loadKomoditas();
+
+    document.getElementById("idMenuDistribusi").value = "";
+    document.getElementById("idPenerimaDistribusi").value = "";
+    document.getElementById("tanggalDistribusi").value = "";
+    document.getElementById("jumlahPorsi").value = "";
+    document.getElementById("statusDistribusi").value = "";
+  } catch (error) {
+    console.log(error);
+    showToast("Gagal tambah distribusi", "error");
+  }
+}
+
+async function hapusDistribusi(id) {
+  if (!confirm("Yakin ingin menghapus distribusi ini?")) return;
+
+  try {
+    const res = await fetch(`${BASE_URL}/distribusi/${id}`, { method: "DELETE" });
+
+    if (!res.ok) throw new Error();
+
+    showToast("Distribusi berhasil dihapus", "success");
+    loadDistribusi();
+  } catch {
+    showToast("Gagal menghapus distribusi", "error");
+  }
 }
 
 // ==========================
@@ -726,7 +766,6 @@ async function loadDropdownKomoditasPermintaan() {
     });
   } catch (error) {
     console.log(error);
-
     console.log("Gagal load dropdown komoditas permintaan");
   }
 }
@@ -752,8 +791,9 @@ function tambahPermintaan() {
 
   permintaanList.push({
     id: Date.now(),
+    idKomoditas: parseInt(select.value),
     komoditas: namaKomoditas,
-    jumlah,
+    jumlah: parseFloat(jumlah),
     tanggal,
     status: "Menunggu",
   });
@@ -780,7 +820,7 @@ function loadPermintaanAdmin() {
                 <td>${item.komoditas}</td>
                 <td>${item.jumlah}</td>
                 <td>${item.tanggal || "-"}</td>
-                <td>${item.status}</td>
+                <td>${getBadgeStatus(item.status)}</td>
                 <td>
                     <div class="action-btn">
                         <button class="delete-btn" onclick="hapusPermintaan(${item.id})">🗑️ Hapus</button>
@@ -814,7 +854,7 @@ function loadPermintaanPetani() {
   if (permintaan.length === 0) {
     body.innerHTML = `
             <tr>
-                <td colspan="5" style="text-align:center; color:#999; padding:20px;">
+                <td colspan="6" style="text-align:center; color:#999; padding:20px;">
                     Belum ada permintaan dari admin
                 </td>
             </tr>
@@ -833,7 +873,7 @@ function loadPermintaanPetani() {
                 <td>${item.komoditas}</td>
                 <td>${item.jumlah}</td>
                 <td>${item.tanggal || "-"}</td>
-                <td><span class="${statusClass}">${item.status}</span></td>
+                <td><span class="${statusClass}">${getBadgeStatus(item.status)}</span></td>
                 <td>
                     <div class="action-btn">
                         ${
@@ -851,17 +891,49 @@ function loadPermintaanPetani() {
   });
 }
 
-function konfirmasiPermintaan(id, status) {
+// Setujui/Tolak permintaan. Kalau "Disetujui", stok komoditas di database
+// langsung ditambah sebesar jumlah yang diminta (PUT /api/komoditas/{id}).
+async function konfirmasiPermintaan(id, status) {
   const permintaan = JSON.parse(localStorage.getItem("permintaan")) || [];
   const index = permintaan.findIndex((p) => p.id === id);
 
-  if (index !== -1) {
-    permintaan[index].status = status;
-    localStorage.setItem("permintaan", JSON.stringify(permintaan));
-    showToast(`Permintaan ${status}!`, "success");
-    loadPermintaanPetani();
-    loadDashboardPetani();
+  if (index === -1) return;
+
+  const item = permintaan[index];
+
+  if (status === "Disetujui") {
+    try {
+      const res = await fetch(`${BASE_URL}/komoditas/${item.idKomoditas}`);
+
+      if (!res.ok) throw new Error();
+
+      const komoditas = await res.json();
+      const stokBaru = (komoditas.stokSaatIni || 0) + item.jumlah;
+
+      const updateRes = await fetch(`${BASE_URL}/komoditas/${item.idKomoditas}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          namaBahan: komoditas.namaBahan,
+          stokSaatIni: stokBaru,
+          satuan: komoditas.satuan,
+        }),
+      });
+
+      if (!updateRes.ok) throw new Error();
+    } catch (error) {
+      console.log(error);
+      showToast("Gagal memperbarui stok komoditas", "error");
+      return;
+    }
   }
+
+  permintaan[index].status = status;
+  localStorage.setItem("permintaan", JSON.stringify(permintaan));
+  showToast(`Permintaan ${status}!`, "success");
+  loadPermintaanPetani();
+  loadDashboardPetani();
+  loadKomoditasPetani();
 }
 
 // ==========================
@@ -949,7 +1021,6 @@ async function tambahUser() {
     showToast("Nama petani wajib diisi!", "error");
     return;
   }
-  console.log(namaInstansi);
 
   const payload = { username, password, role };
   if (namaInstansi) payload.namaInstansi = namaInstansi;
@@ -1007,7 +1078,7 @@ async function loadUser() {
                     <td>${i + 1}</td>
                     <td>${user.username}</td>
                     <td>${user.role}</td>
-                    <td>${user.namaInstansi || user.namaPetani || "-"}</td>
+                    <td>${user.namaInstansi || user.namaKelompok || user.namaPetani || "-"}</td>
                     <td>
                         <div class="action-btn">
                             <button class="edit-btn" onclick="openEditUser(${user.idUser}, '${user.username}', '${user.role}', '${user.namaInstansi || ""}', '${user.namaPetani || ""}')">✏️ Edit</button>
@@ -1078,15 +1149,11 @@ async function hapusUser(id) {
 
 async function loadDropdownPaket() {
   const select = document.getElementById("idMenuDistribusi");
-
   if (!select) return;
 
   try {
     const res = await fetch(`${BASE_URL}/paket-menu`);
-
     const data = await res.json();
-
-    console.log(data);
 
     select.innerHTML = `<option value="">Pilih Paket Menu</option>`;
 
@@ -1104,31 +1171,23 @@ async function loadDropdownPaket() {
 
 async function loadDropdownPenerima() {
   const select = document.getElementById("idPenerimaDistribusi");
-
   if (!select) return;
 
   try {
-    const res = await fetch(`${BASE_URL}/users`);
-
+    const res = await fetch(`${BASE_URL}/penerima-manfaat/dropdown`);
     const data = await res.json();
 
-    console.log(data);
-
     select.innerHTML = `<option value="">Pilih Penerima</option>`;
-
     data.forEach((item) => {
-      if (item.role === "SEKOLAH") {
-        select.innerHTML += `
-          <option value="${item.idUser}">
-            ${item.namaInstansi || item.username}
-          </option>
-        `;
-      }
+      select.innerHTML += `
+        <option value="${item.idUser}">
+          ${item.namaInstansi}
+        </option>
+      `;
     });
   } catch (error) {
     console.log(error);
-
-    console.log("Gagal load dropdown penerima");
+    showToast("Gagal load dropdown penerima", "error");
   }
 }
 
@@ -1149,13 +1208,9 @@ async function loadDropdownDetailMenu() {
     const komoditasRes = await fetch(`${BASE_URL}/komoditas`);
     const komoditasData = await komoditasRes.json();
 
-    console.log(komoditasData);
-
     komoditasSelect.innerHTML = `<option value="">Pilih Komoditas</option>`;
 
     komoditasData.forEach((item) => {
-      console.log(item);
-
       komoditasSelect.innerHTML += `
         <option value="${item.idKomoditas}">
             ${item.namaBahan}
@@ -1179,17 +1234,30 @@ async function loadDashboardPreview() {
     const res = await fetch(`${BASE_URL}/distribusi`);
     const data = await res.json();
 
+    // Ambil mapping penerima
+    const penerimaRes = await fetch(`${BASE_URL}/penerima-manfaat/dropdown`);
+    const penerimaData = await penerimaRes.json();
+    const penerimaMap = {};
+    penerimaData.forEach(p => { penerimaMap[p.idUser] = p.namaInstansi; });
+
     body.innerHTML = "";
     data.slice(0, 5).forEach((item) => {
+      const namaPenerima = item.penerimaManfaat
+        ? (penerimaMap[item.penerimaManfaat.idUser] || "-")
+        : "-";
+
       body.innerHTML += `
-                <tr>
-                    <td>${item.paketMenu?.namaMenu || "-"}</td>
-                    <td>${item.penerimaManfaat?.namaInstansi || "-"}</td>
-                    <td>${item.jumlahPorsiDikirim}</td>
-                    <td>${item.status}</td>
-                </tr>
-            `;
+        <tr>
+          <td>${item.paketMenu?.namaMenu || "-"}</td>
+          <td>${namaPenerima}</td>
+          <td>${item.jumlahPorsiDikirim}</td>
+          <td>${item.status}</td>
+        </tr>
+      `;
     });
+
+    const totalDistribusi = document.getElementById("totalDistribusi");
+    if (totalDistribusi) totalDistribusi.innerText = data.length;
   } catch {
     console.log("Gagal load dashboard preview");
   }
@@ -1375,7 +1443,7 @@ window.onload = function () {
     loadDropdownPaket();
     loadDropdownPenerima();
     loadDropdownKomoditasPermintaan();
-    loadPermintaanAdmin(); // ✅ versi admin
+    loadPermintaanAdmin();
     loadUser();
   }
 

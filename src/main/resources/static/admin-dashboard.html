@@ -68,16 +68,16 @@
         <img src="img/logo.png" class="sidebar-logo">
         <h2>ADMIN MBG</h2>
         <ul>
-            <li onclick="showPage('dashboard', this)">🏠 Dashboard</li>
-            <li onclick="showPage('komoditas', this)">🌾 Komoditas</li>
-            <li onclick="showPage('paket', this)">🍱 Paket Menu</li>
-            <li onclick="showPage('detailmenu', this)">📋 Detail Menu</li>
-            <li onclick="showPage('distribusi', this)">🚚 Distribusi</li>
-            <li onclick="showPage('permintaan', this)">📦 Permintaan ke Petani</li>
-            <li onclick="showPage('komentar', this)">💬 Komentar</li>
-            <li onclick="showPage('user', this)">👥 User Management</li>
+            <li onclick="showPage('dashboard', this)">Dashboard</li>
+            <li onclick="showPage('komoditas', this)"> Komoditas</li>
+            <li onclick="showPage('paket', this)"> Paket Menu</li>
+            <li onclick="showPage('detailmenu', this)"> Detail Menu</li>
+            <li onclick="showPage('distribusi', this)"> Distribusi</li>
+            <li onclick="showPage('permintaan', this)"> Permintaan ke Petani</li>
+            <li onclick="showPage('komentar', this)"> Komentar</li>
+            <li onclick="showPage('user', this)"> User Management</li>
         </ul>
-        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        <button class="logout-btn" onclick="logout()"> Logout</button>
     </div>
 
     <!-- ================= CONTENT ================= -->
@@ -135,10 +135,8 @@
                 <input type="text" id="namaKomoditas" placeholder="Nama Komoditas">
                 <input type="number" id="stokKomoditas" placeholder="Jumlah Stok">
                 <input type="text" id="satuanKomoditas" placeholder="Satuan (kg, liter, dll)">
-                <button class="add-btn" onclick="tambahDistribusi()">
-                    ➕ Tambah
-                </button>
-                            </div>
+                <button class="add-btn" onclick="tambahKomoditas()">Tambah</button>
+            </div>
 
             <div class="table-wrapper">
                 <table>
@@ -165,7 +163,7 @@
             <div class="form-box">
                 <input type="text" id="namaPaket" placeholder="Nama Paket">
                 <input type="text" id="isiPaket" placeholder="Deskripsi Gizi">
-                <button class="add-btn" onclick="tambahPaket()">➕ Tambah</button>
+                <button class="add-btn" onclick="tambahPaket()">Tambah</button>
             </div>
 
             <div class="table-wrapper">
@@ -197,7 +195,7 @@
                     <option value="">Pilih Komoditas</option>
                 </select>
                 <input type="number" id="jumlahKebutuhan" placeholder="Kebutuhan per Porsi" step="0.01">
-                <button class="add-btn" onclick="tambahDetailMenu()">➕ Tambah</button>
+                <button class="add-btn" onclick="tambahDetailMenu()">Tambah</button>
             </div>
 
             <div class="table-wrapper">
@@ -237,7 +235,7 @@
                     <option value="Dikirim">Dikirim</option>
                     <option value="Selesai">Selesai</option>
                 </select>
-                <button class="add-btn" onclick="tambahDistribusi()">➕ Tambah</button>
+                <button class="add-btn" onclick="tambahDistribusi()">Tambah</button>
             </div>
 
             <div class="table-wrapper">
@@ -269,7 +267,7 @@
                     <option value="">Pilih Komoditas</option>
                 </select>
                 <input type="number" id="jumlahPermintaan" placeholder="Jumlah yang diminta">
-                <button class="add-btn" onclick="tambahPermintaan()">➕ Kirim Permintaan</button>
+                <button class="add-btn" onclick="tambahPermintaan()">Kirim Permintaan</button>
             </div>
 
             <div class="table-wrapper">
@@ -332,7 +330,7 @@
                 placeholder="Nama Sekolah (jika SEKOLAH)"
             >
             <input type="text" id="newNamaPetani" placeholder="Nama Petani (jika PETANI)">
-            <button class="add-btn" onclick="tambahUser()">➕ Tambah User</button>
+            <button class="add-btn" onclick="tambahUser()"> Tambah User</button>
         </div>
 
         <div class="form-box">
@@ -363,14 +361,14 @@
     <!-- ================= MODAL EDIT KOMODITAS ================= -->
     <div class="modal-overlay" id="modalEditKomoditas">
         <div class="modal-box">
-            <h3>✏️ Edit Komoditas</h3>
+            <h3>Edit Komoditas</h3>
             <input type="hidden" id="editKomoditasId">
             <input type="text" id="editNamaKomoditas" placeholder="Nama Komoditas">
             <input type="number" id="editStokKomoditas" placeholder="Stok">
             <input type="text" id="editSatuanKomoditas" placeholder="Satuan">
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeModal('modalEditKomoditas')">Batal</button>
-                <button onclick="simpanEditKomoditas()">💾 Simpan</button>
+                <button onclick="simpanEditKomoditas()"> Simpan</button>
             </div>
         </div>
     </div>
@@ -378,13 +376,13 @@
     <!-- ================= MODAL EDIT PAKET ================= -->
     <div class="modal-overlay" id="modalEditPaket">
         <div class="modal-box">
-            <h3>✏️ Edit Paket Menu</h3>
+            <h3>Edit Paket Menu</h3>
             <input type="hidden" id="editPaketId">
             <input type="text" id="editNamaPaket" placeholder="Nama Paket">
             <input type="text" id="editDeskripsiPaket" placeholder="Deskripsi Gizi">
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeModal('modalEditPaket')">Batal</button>
-                <button onclick="simpanEditPaket()">💾 Simpan</button>
+                <button onclick="simpanEditPaket()">Simpan</button>
             </div>
         </div>
     </div>
@@ -392,7 +390,7 @@
     <!-- ================= MODAL EDIT USER ================= -->
     <div class="modal-overlay" id="modalEditUser">
         <div class="modal-box">
-            <h3>✏️ Edit User</h3>
+            <h3>Edit User</h3>
             <input type="hidden" id="editUserId">
             <input type="text" id="editUsername" placeholder="Username">
             <select id="editRole">
@@ -405,7 +403,7 @@
             <input type="password" id="editPassword" placeholder="Password baru (kosongkan jika tidak diubah)">
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeModal('modalEditUser')">Batal</button>
-                <button onclick="simpanEditUser()">💾 Simpan</button>
+                <button onclick="simpanEditUser()">Simpan</button>
             </div>
         </div>
     </div>
@@ -414,7 +412,7 @@
     <!-- MODAL EDIT DETAIL MENU -->
     <div class="modal-overlay" id="modalEditDetailMenu">
         <div class="modal-box">
-            <h3>✏️ Edit Detail Menu</h3>
+            <h3>Edit Detail Menu</h3>
 
             <input type="hidden" id="editDetailId">
 
@@ -434,7 +432,7 @@
                 </button>
 
                 <button onclick="simpanEditDetailMenu()">
-                    💾 Simpan
+                    Simpan
                 </button>
             </div>
         </div>

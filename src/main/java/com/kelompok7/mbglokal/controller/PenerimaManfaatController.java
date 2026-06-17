@@ -1,7 +1,10 @@
 package com.kelompok7.mbglokal.controller;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,17 +16,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kelompok7.mbglokal.entity.PenerimaManfaat;
+import com.kelompok7.mbglokal.repository.UserRepository;
 import com.kelompok7.mbglokal.service.PenerimaManfaatService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/penerima-manfaat")
+@RequiredArgsConstructor
 public class PenerimaManfaatController {
 
     private final PenerimaManfaatService penerimaManfaatService;
-
-    public PenerimaManfaatController(PenerimaManfaatService penerimaManfaatService) {
-        this.penerimaManfaatService = penerimaManfaatService;
-    }
+    private final UserRepository userRepository;
 
     @GetMapping
     public List<PenerimaManfaat> getAllPenerimaManfaat() {
@@ -45,5 +49,22 @@ public class PenerimaManfaatController {
     public ResponseEntity<Void> deletePenerimaManfaat(@PathVariable Long id) {
         penerimaManfaatService.deletePenerimaManfaat(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/dropdown")
+    public List<Map<String, Object>> getDropdown() {
+        return penerimaManfaatService.getAllPenerimaManfaat().stream()
+            .map(p -> {
+                String namaInstansi = userRepository.findNamaInstansiById(p.getIdUser());
+                String nama = (namaInstansi != null && !namaInstansi.isBlank())
+                    ? namaInstansi
+                    : p.getUsername();
+
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("idUser", p.getIdUser());
+                map.put("namaInstansi", nama);
+                return map;
+            })
+            .collect(Collectors.toList());
     }
 }
